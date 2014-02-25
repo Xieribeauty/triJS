@@ -1,0 +1,112 @@
+<script type="text/javascript" src = "./jq.js">
+</script>
+<style type="text/css">
+	.drag {
+		position:absolute;
+		left:200px;
+		top:100px;
+	}
+	#drag_shadow {
+		position:absolute;
+		display:none;
+		background:-webkit-gradient(linear,0 0,0 100%,from(#09C),to(#099));
+		background:-moz-linear-gradient(top,#09C,#099 100%);
+		background:-o-linear-gradient(top,#09C,#099 100%);
+		cursor:move;
+		opacity:0.3;
+	}
+#container {
+	width:200px;
+	height:500px;
+	border:1px solid #ccc;
+	border-radius: 3px;
+	position: absolute;
+	right:200px;
+	top:200px;
+}
+</style>
+<div class="drag">this is a test</div>
+<div id="drag_shadow"></div>
+
+<div id="container"></div>
+
+
+<script type="text/javascript">
+	(function($){
+		$.fn.drag = function(shadow,container,after) {
+			var _this = $(this),
+				isMove = false,
+				isBox = false,
+				isOver = false,
+				x = 0,
+				y = 0,
+				X ,
+				Y ,
+				container_x,
+				container_y,
+				box_width ,
+				box_height
+				;
+
+			$(document)
+			.mousemove(function(event){
+				if (isMove) {
+					X = event.pageX;
+					Y = event.pageY;
+					shadow.css({
+						"display" :"block",
+						"width" : box_width,
+						"height" : box_height,
+						"left" : X - x,
+						"top" : Y - y
+					});
+					_this.fadeTo("fast", 1);
+				}
+			})
+			.mouseup(function(){
+				isMove = false;
+				shadow.css({
+					"display" : "none"
+				});
+				if (isOver) {
+					after(_this);
+					isOver = false;
+				}
+			});
+
+			_this.mousedown(function(event){
+				if ($(event.target).is(_this)) {
+					isMove = true;
+					_this.css({
+						"cursor" : "move"
+					});
+					x = event.pageX - parseInt(_this.css("left"));
+					y = event.pageY - parseInt(_this.css("top"));
+					_this.fadeTo("fast",0.5);
+					box_width = _this.css("width");
+					box_height = _this.css("height");
+				}
+			});
+
+			container.mouseover(function(event) {
+				isOver = true;
+			})
+			.mouseout(function(event) {
+				isOver = false;
+			});;
+
+			return this.each();
+		}
+	}(jQuery));
+	$(function(){
+		$(".drag").drag($("#drag_shadow"),$("#container"),addDiv);
+	});
+
+		function addDiv (box) {
+			var inner = box.html();
+			var a = jQuery("<div/>");
+			$(a).append(inner);
+			$("#container").append(a);
+			return false;
+		}
+</script>
